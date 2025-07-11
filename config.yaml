@@ -1,0 +1,11 @@
+﻿server:
+  port: "8080"
+
+virustotal:
+  api_key: "24281c54a1cbaa0d442ae87c5bb9eb1da131dc8ada8042cef3e8b8131fe66983"
+
+kafka:
+  broker: "localhost:9092"
+
+log:
+  level: "debug"

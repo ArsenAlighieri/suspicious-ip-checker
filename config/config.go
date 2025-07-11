@@ -31,6 +31,11 @@ func LoadConfig() (*Config, error) {
 	// öncelikli olmasını sağlar.
 	viper.BindEnv("kafka.broker", "KAFKA_BROKER")
 
+	// VIRUSTOTAL_API_KEY ortam değişkenini "virustotal.api_key" yapılandırma anahtarına bağla.
+	// Bu, VIRUSTOTAL_API_KEY ortam değişkeninin VirusTotal API anahtarı için config.yaml'deki değerden
+	// öncelikli olmasını sağlar.
+	viper.BindEnv("virustotal.api_key", "VIRUSTOTAL_API_KEY")
+
 	// Yapılandırma dosyasını oku.
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, err

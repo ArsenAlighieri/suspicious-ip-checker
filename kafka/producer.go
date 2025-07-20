@@ -11,18 +11,14 @@ import (
 )
 
 // ScanResult, Kafka'ya gönderilen verinin yapısını temsil eder.
-// Bir IP taraması hakkında bilgi içerir: IP adresi, belirlenen durumu,
-// tarama zaman damgası ve kaynak hizmeti.
 type ScanResult struct {
-	IP        string    `json:"ip"`        // Taranan IP adresi.
-	Status    string    `json:"status"`    // IP'nin durumu (örn. "malicious", "suspicious", "clean").
-	Timestamp time.Time `json:"timestamp"` // Taramayı yapıldığı zaman.
-	Source    string    `json:"source"`    // Taramayı başlatan hizmet (örn. "ip-submission-service").
+	IP        string    `json:"ip"`
+	Status    string    `json:"status"`
+	Timestamp time.Time `json:"timestamp"`
+	Source    string    `json:"source"`
 }
 
 // SendToKafka, yapılandırılmış Kafka broker'ına bir ScanResult mesajı gönderir.
-// Uygulama yapılandırmasını, bir Zap günlükçüsünü ve gönderilecek ScanResult'ı alır.
-// Mesaj gönderilemezse bir hata döndürür.
 func SendToKafka(cfg *config.Config, logger *zap.Logger, result ScanResult) error {
 	// Yeni bir Sarama senkronize üretici oluştur.
 	// Bu üretici, mesaj başarıyla gönderilene veya bir hata oluşana kadar engellenir.
@@ -57,7 +53,6 @@ func SendToKafka(cfg *config.Config, logger *zap.Logger, result ScanResult) erro
 		return err
 	}
 
-	// Kafka'ya başarılı mesaj teslimatını günlüğe kaydet.
 	logger.Info("Mesaj Kafka'ya gönderildi",
 		zap.String("topic", "ip_scan_result"),
 		zap.Int32("partition", partition),

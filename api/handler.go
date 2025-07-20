@@ -14,11 +14,7 @@ import (
 // RegisterRoutes, Fiber uygulaması için API uç noktalarını ayarlar.
 // Fiber uygulama örneğini, bir Zap günlükçüsünü ve uygulama yapılandırmasını alır.
 func RegisterRoutes(app *fiber.App, logger *zap.Logger, cfg *config.Config) {
-	// /submit-ip adresinde bir POST uç noktası tanımlar.
-	// Bu uç nokta, bir IP adresi almak, VirusTotal ile kontrol etmek,
-	// sonucu Kafka'ya göndermek ve bir yanıt döndürmekten sorumludur.
 	app.Post("/submit-ip", func(c *fiber.Ctx) error {
-		// Gelen JSON istek gövdesi için yapıyı tanımlar.
 		type request struct {
 			IP string `json:"ip"` // Kontrol edilecek IP adresi.
 		}

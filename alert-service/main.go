@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"suspicious-ip-checker/alert-service/config"
 	"syscall"
 	"time"
 
@@ -14,8 +15,7 @@ import (
 )
 
 const (
-	kafkaBroker = "kafka:9092" // Kafka broker adresi
-	kafkaTopic  = "ip_scan_result"
+	kafkaTopic = "ip_scan_result"
 )
 
 // ScanResult yapısı, üreticinin mesaj formatıyla eşleşir.
@@ -28,24 +28,29 @@ type ScanResult struct {
 
 func main() {
 	// JSON çıktısı için Zap günlükçüsünü başlat.
-	cfg := zap.NewProductionConfig()
-	cfg.Encoding = "json"
-	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
-	logger, err := cfg.Build()
+	zapCfg := zap.NewProductionConfig()
+	zapCfg.Encoding = "json"
+	zapCfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	logger, err := zapCfg.Build()
 	if err != nil {
 		log.Fatalf("Günlükleyici oluşturulamadı: %v", err)
 	}
 	defer logger.Sync() // Çıkışta arabelleğe alınmış günlükleri temizle.
 
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		logger.Fatal("Yapılandırma yüklenemedi", zap.Error(err))
+	}
+
 	logger.Info("Uyarı Servisi başlatılıyor...")
 
 	// Kafka tüketici yapılandırması.
-	config := sarama.NewConfig()
-	config.Consumer.Return.Errors = true
-	config.Consumer.Offsets.Initial = sarama.OffsetOldest // En eski mevcut ofsetten tüketmeye başla.
+	saramaConfig := sarama.NewConfig()
+	saramaConfig.Consumer.Return.Errors = true
+	saramaConfig.Consumer.Offsets.Initial = sarama.OffsetOldest // En eski mevcut ofsetten tüketmeye başla.
 
 	// Yeni bir tüketici oluştur.
-	master, err := sarama.NewConsumer([]string{kafkaBroker}, config)
+	master, err := sarama.NewConsumer([]string{cfg.KafkaBroker}, saramaConfig)
 	if err != nil {
 		logger.Fatal("Kafka tüketicisi başlatılamadı", zap.Error(err))
 	}

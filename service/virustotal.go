@@ -3,6 +3,7 @@
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -24,9 +25,7 @@ type VTResponse struct {
 }
 
 // CheckIP, verilen IP adresi için VirusTotal API'sini sorgular.
-// IP adresi dizesini ve uygulama yapılandırmasını (API anahtarı için) alır.
-// Durumu ("malicious", "suspicious" veya "clean") belirten bir dize ve
-// API çağrısı başarısız olursa veya yanıt ayrıştırılamazsa bir hata döndürür.
+
 func CheckIP(ip string, cfg *config.Config) (string, error) {
 	// Asılı kalan istekleri önlemek için zaman aşımı olan bir HTTP istemcisi oluştur.
 	client := http.Client{
@@ -53,10 +52,9 @@ func CheckIP(ip string, cfg *config.Config) (string, error) {
 	// Okuduktan sonra yanıt gövdesinin kapatıldığından emin ol.
 	defer resp.Body.Close()
 
-	// HTTP yanıt durum kodunun başarıyı (200 OK) gösterip göstermediğini kontrol et.
-	// Aksi takdirde, durum koduyla birlikte bir hata döndür.
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("VirusTotal API hatası: %d", resp.StatusCode)
+		body, _ := ioutil.ReadAll(resp.Body)
+		return "", fmt.Errorf("VirusTotal API hatası: %d - %s", resp.StatusCode, string(body))
 	}
 
 	// JSON yanıt gövdesini VTResponse yapısına dönüştür.
@@ -67,9 +65,6 @@ func CheckIP(ip string, cfg *config.Config) (string, error) {
 	}
 
 	// VirusTotal'dan gelen analiz sonuçlarını yorumla.
-	// Herhangi bir kötü amaçlı tespit bulunursa, "malicious" olarak sınıflandır.
-	// Herhangi bir şüpheli tespit bulunursa, "suspicious" olarak sınıflandır.
-	// Aksi takdirde, "clean" olarak sınıflandır.
 	stats := vtResp.Data.Attributes.LastAnalysisStats
 	if stats.Malicious > 0 {
 		return "malicious", nil

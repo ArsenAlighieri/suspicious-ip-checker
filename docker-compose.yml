@@ -36,3 +36,5 @@ services:
       dockerfile: Dockerfile
     depends_on:
       - kafka
+    environment:
+      KAFKA_BROKER: "kafka:9092"

@@ -4,12 +4,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config, uygulamanın yapılandırma parametrelerini tutar.
 type Config struct {
-	ServerPort       string // HTTP sunucusunun dinleyeceği port.
-	VirusTotalApiKey string // VirusTotal servisi için API anahtarı.
-	KafkaBroker      string // Kafka broker'ının adresi.
-	LogLevel         string // Günlükleme seviyesi (örn. "debug", "info", "error").
+	ServerPort       string
+	VirusTotalApiKey string
+	KafkaBroker      string
+	LogLevel         string
 }
 
 // LoadConfig, yapılandırmayı config.yaml dosyasından ve ortam değişkenlerinden okur.
@@ -25,15 +24,7 @@ func LoadConfig() (*Config, error) {
 	// Ortam değişkenlerinin otomatik olarak okunmasını etkinleştir.
 	// Ortam değişkenleri, eşleşmeleri halinde yapılandırma dosyasındaki değerleri geçersiz kılar.
 	viper.AutomaticEnv() // .env dosyalarını destekler (başka yollarla yüklenirse) veya doğrudan ortam değişkenlerini.
-
-	// KAFKA_BROKER ortam değişkenini "kafka.broker" yapılandırma anahtarına bağla.
-	// Bu, KAFKA_BROKER ortam değişkeninin Kafka broker adresi için config.yaml'deki değerden
-	// öncelikli olmasını sağlar.
 	viper.BindEnv("kafka.broker", "KAFKA_BROKER")
-
-	// VIRUSTOTAL_API_KEY ortam değişkenini "virustotal.api_key" yapılandırma anahtarına bağla.
-	// Bu, VIRUSTOTAL_API_KEY ortam değişkeninin VirusTotal API anahtarı için config.yaml'deki değerden
-	// öncelikli olmasını sağlar.
 	viper.BindEnv("virustotal.api_key", "VIRUSTOTAL_API_KEY")
 
 	// Yapılandırma dosyasını oku.

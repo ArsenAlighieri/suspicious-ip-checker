@@ -1,0 +1,2 @@
+kafka:
+  broker: "kafka:9092"
